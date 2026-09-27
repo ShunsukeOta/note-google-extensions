@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#050505">
+<title>1回転抽選</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}body{min-height:100dvh;display:flex;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}.app{width:min(100%,480px);display:flex;flex-direction:column;gap:14px}.card{background:#111;border:1px solid #252525;border-radius:20px;padding:18px}.ttl{font-size:24px;font-weight:900}.sub,.label,.foot{color:#8a8a8a;font-size:12px}.prob{display:flex;align-items:center;gap:10px;margin-top:10px}.prob b{font-size:34px}input{width:100%;background:#080808;color:#fff;border:1px solid #333;border-radius:14px;padding:12px;font-size:28px;font-weight:900;text-align:center}.chips{display:flex;gap:8px;overflow:auto;margin-top:12px}.chip,.subbtn{border:1px solid #303030;background:#171717;color:#ddd;border-radius:999px;padding:9px 12px;font-weight:700;white-space:nowrap}.hero{text-align:center;padding:26px 12px}.n{font-size:76px;font-weight:950;letter-spacing:-.07em}.unit{font-size:18px;color:#999}.result{margin-top:10px;color:#8b8b8b;font-weight:800;min-height:22px}.spin{width:100%;min-height:112px;border:0;border-radius:24px;background:#fff;color:#000;font-size:30px;font-weight:950;box-shadow:0 8px 0 #aaa;touch-action:manipulation}.spin:active{transform:translateY(6px);box-shadow:0 2px 0 #aaa}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#101010;border:1px solid #252525;border-radius:16px;padding:12px;text-align:center}.stat small{color:#777}.stat strong{display:block;margin-top:4px;font-size:18px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.subbtn{border-radius:14px;padding:13px 8px}.foot{text-align:center;line-height:1.5}#cut{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:99}#cut.show{display:flex;animation:fade .12s linear}.inside{text-align:center;animation:boom .75s cubic-bezier(.2,.9,.2,1)}.p{font-size:clamp(64px,22vw,116px);font-weight:950;letter-spacing:-.1em;text-shadow:0 0 20px #fff5}.w{margin-top:20px;font-size:18px;font-weight:900;letter-spacing:.18em}@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes boom{0%{opacity:0;transform:scale(2.6);filter:blur(12px)}30%{opacity:1;transform:scale(.9);filter:blur(0)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div><div class="ttl">1回転抽選</div><div class="sub">分母を決めて、押すだけ。</div></div>
+  <div class="card">
+    <div class="label">大当たり確率</div>
+    <div class="prob"><b>1 /</b><input id="d" type="number" min="1" step="0.1" inputmode="decimal" value="259.7"></div>
+    <div class="chips"><button class="chip" data-v="99.9">1/99.9</button><button class="chip" data-v="159">1/159</button><button class="chip" data-v="199.8">1/199.8</button><button class="chip" data-v="259.7">1/259.7</button><button class="chip" data-v="319.7">1/319.7</button><button class="chip" data-v="399.9">1/399.9</button></div>
+  </div>
+  <div class="card hero"><div class="label">CURRENT STREAK</div><div><span id="streak" class="n">0</span><span class="unit">回転</span></div><div id="result" class="result">まだ回していません</div></div>
+  <button id="spin" class="spin">1回転</button>
+  <div class="stats"><div class="stat"><small>総回転</small><strong id="total">0</strong></div><div class="stat"><small>大当たり</small><strong id="hits">0</strong></div><div class="stat"><small>実績確率</small><strong id="actual">—</strong></div></div>
+  <div class="actions"><button id="rs" class="subbtn">ハマりリセット</button><button id="ra" class="subbtn">全リセット</button></div>
+  <div class="foot">各回転は独立抽選。ハマり回数で次回の当選確率は変わりません。</div>
+</div>
+<div id="cut"><div class="inside"><div class="p">プチュン</div><div class="w">大 当 た り</div></div></div>
+<script>
+(()=>{const $=id=>document.getElementById(id),d=$('d'),st=$('streak'),to=$('total'),hi=$('hits'),ac=$('actual'),re=$('result'),sp=$('spin'),cut=$('cut');let s=+localStorage.s||0,t=+localStorage.t||0,h=+localStorage.h||0;d.value=localStorage.d||259.7;const save=()=>{localStorage.s=s;localStorage.t=t;localStorage.h=h;localStorage.d=d.value},render=()=>{st.textContent=s.toLocaleString('ja-JP');to.textContent=t.toLocaleString('ja-JP');hi.textContent=h.toLocaleString('ja-JP');ac.textContent=h?`1/${(t/h).toFixed(1)}`:'—'},rnd=()=>{if(crypto?.getRandomValues){let a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}return Math.random()},sound=()=>{try{let c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain(),n=c.currentTime;o.type='sine';o.frequency.setValueAtTime(130,n);o.frequency.exponentialRampToValueAtTime(42,n+.45);g.gain.setValueAtTime(.7,n);g.gain.exponentialRampToValueAtTime(.001,n+.7);o.connect(g);g.connect(c.destination);o.start();o.stop(n+.72)}catch(e){}};document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{d.value=b.dataset.v;save()});sp.onclick=()=>{let x=+d.value;if(!(x>=1))return;sp.disabled=true;t++;s++;if(rnd()<1/x){h++;re.textContent=`大当たり！ ${s}回転`;save();render();cut.classList.add('show');sound();navigator.vibrate?.([50,40,100,40,180]);setTimeout(()=>{s=0;save();render();sp.disabled=false},900)}else{re.textContent=`ハズレ 1/${x}`;save();render();navigator.vibrate?.(8);sp.disabled=false}};cut.onclick=()=>cut.classList.remove('show');$('rs').onclick=()=>{s=0;re.textContent='ハマりをリセット';save();render()};$('ra').onclick=()=>{if(confirm('全データをリセットしますか？')){s=t=h=0;re.textContent='全データをリセット';save();render()}};d.onchange=save;render()})();
+</script>
+</body>
+</html>
