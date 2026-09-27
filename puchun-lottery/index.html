@@ -6,7 +6,41 @@
 <meta name="theme-color" content="#050505">
 <title>1回転抽選</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}body{min-height:100dvh;display:flex;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}.app{width:min(100%,480px);display:flex;flex-direction:column;gap:14px}.card{background:#111;border:1px solid #252525;border-radius:20px;padding:18px}.ttl{font-size:24px;font-weight:900}.sub,.label,.foot{color:#8a8a8a;font-size:12px}.prob{display:flex;align-items:center;gap:10px;margin-top:10px}.prob b{font-size:34px}input{width:100%;background:#080808;color:#fff;border:1px solid #333;border-radius:14px;padding:12px;font-size:28px;font-weight:900;text-align:center}.chips{display:flex;gap:8px;overflow:auto;margin-top:12px}.chip,.subbtn{border:1px solid #303030;background:#171717;color:#ddd;border-radius:999px;padding:9px 12px;font-weight:700;white-space:nowrap}.hero{text-align:center;padding:26px 12px}.n{font-size:76px;font-weight:950;letter-spacing:-.07em}.unit{font-size:18px;color:#999}.result{margin-top:10px;color:#8b8b8b;font-weight:800;min-height:22px}.spin{width:100%;min-height:112px;border:0;border-radius:24px;background:#fff;color:#000;font-size:30px;font-weight:950;box-shadow:0 8px 0 #aaa;touch-action:manipulation}.spin:active{transform:translateY(6px);box-shadow:0 2px 0 #aaa}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#101010;border:1px solid #252525;border-radius:16px;padding:12px;text-align:center}.stat small{color:#777}.stat strong{display:block;margin-top:4px;font-size:18px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.subbtn{border-radius:14px;padding:13px 8px}.foot{text-align:center;line-height:1.5}#cut{position:fixed;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:99}#cut.show{display:flex;animation:fade .12s linear}.inside{text-align:center;animation:boom .75s cubic-bezier(.2,.9,.2,1)}.p{font-size:clamp(64px,22vw,116px);font-weight:950;letter-spacing:-.1em;text-shadow:0 0 20px #fff5}.w{margin-top:20px;font-size:18px;font-weight:900;letter-spacing:.18em}@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes boom{0%{opacity:0;transform:scale(2.6);filter:blur(12px)}30%{opacity:1;transform:scale(.9);filter:blur(0)}45%{transform:scale(1.08)}100%{transform:scale(1)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#050505;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100%}body{min-height:100dvh;display:flex;justify-content:center;padding:max(18px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));overflow-x:hidden}.app{width:min(100%,480px);display:flex;flex-direction:column;gap:14px}.card{background:#111;border:1px solid #252525;border-radius:20px;padding:18px}.ttl{font-size:24px;font-weight:900}.sub,.label,.foot{color:#8a8a8a;font-size:12px}.prob{display:flex;align-items:center;gap:10px;margin-top:10px}.prob b{font-size:34px}input{width:100%;background:#080808;color:#fff;border:1px solid #333;border-radius:14px;padding:12px;font-size:28px;font-weight:900;text-align:center}.chips{display:flex;gap:8px;overflow:auto;margin-top:12px}.chip,.subbtn{border:1px solid #303030;background:#171717;color:#ddd;border-radius:999px;padding:9px 12px;font-weight:700;white-space:nowrap}.hero{text-align:center;padding:26px 12px}.n{font-size:76px;font-weight:950;letter-spacing:-.07em}.unit{font-size:18px;color:#999}.result{margin-top:10px;color:#8b8b8b;font-weight:800;min-height:22px}.spin{width:100%;min-height:112px;border:0;border-radius:24px;background:#fff;color:#000;font-size:30px;font-weight:950;box-shadow:0 8px 0 #aaa;touch-action:manipulation}.spin:active{transform:translateY(6px);box-shadow:0 2px 0 #aaa}.spin:disabled{opacity:.5}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#101010;border:1px solid #252525;border-radius:16px;padding:12px;text-align:center}.stat small{color:#777}.stat strong{display:block;margin-top:4px;font-size:18px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.subbtn{border-radius:14px;padding:13px 8px}.foot{text-align:center;line-height:1.5}
+
+/* HIT EFFECT */
+#cut{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:#000;overflow:hidden;pointer-events:none}
+#cut.show{display:flex;animation:screenIn 2s linear both}
+#cut .flash{position:absolute;inset:-10%;background:#fff;opacity:0}
+#cut.show .flash{animation:flashBang 2s ease-out both}
+#cut .burst{position:absolute;left:50%;top:50%;width:180vmax;height:180vmax;transform:translate(-50%,-50%) scale(.05);border-radius:50%;opacity:0;background:repeating-conic-gradient(from 0deg,#fff 0 1.4deg,transparent 1.4deg 6deg)}
+#cut.show .burst{animation:burstOut 2s cubic-bezier(.11,.8,.2,1) both}
+#cut .ring{position:absolute;left:50%;top:50%;width:40vmin;height:40vmin;border:8px solid #fff;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:0;box-shadow:0 0 35px #fff,0 0 90px rgba(255,255,255,.6),inset 0 0 25px #fff}
+#cut.show .ring.r1{animation:ring1 2s ease-out both}
+#cut.show .ring.r2{animation:ring2 2s ease-out both}
+#cut .shake{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#cut.show .shake{animation:shake 2s linear both}
+#cut .inside{position:relative;text-align:center;z-index:5;opacity:0;transform:scale(3.2);filter:blur(18px)}
+#cut.show .inside{animation:titleBoom 2s cubic-bezier(.18,.85,.18,1) both}
+#cut .p{font-size:clamp(68px,23vw,124px);font-weight:1000;letter-spacing:-.11em;line-height:.88;color:#fff;text-shadow:0 0 7px #fff,0 0 22px #fff,0 0 50px rgba(255,255,255,.65)}
+#cut .w{margin-top:22px;font-size:clamp(22px,7vw,42px);font-weight:1000;letter-spacing:.16em;color:#fff;text-shadow:0 0 12px #fff,0 0 30px rgba(255,255,255,.7)}
+#cut .subhit{margin-top:10px;font-size:12px;font-weight:900;letter-spacing:.38em;color:#bbb;opacity:0}
+#cut.show .subhit{animation:subIn 2s ease both}
+#cut .scan{position:absolute;left:-20%;width:140%;height:18%;top:-20%;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.95),transparent);opacity:0;transform:rotate(-8deg)}
+#cut.show .scan{animation:scan 2s ease-in-out both}
+#cut .noise{position:absolute;inset:0;opacity:.12;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.15) 0 1px,transparent 1px 3px);mix-blend-mode:screen}
+#cut.show .noise{animation:noiseMove .08s steps(2,end) infinite}
+
+@keyframes screenIn{0%{background:#000}8%{background:#000}10%{background:#fff}14%{background:#000}100%{background:#000}}
+@keyframes flashBang{0%,8%{opacity:0}10%{opacity:1}14%{opacity:0}40%{opacity:0}44%{opacity:.55}48%,100%{opacity:0}}
+@keyframes burstOut{0%,12%{opacity:0;transform:translate(-50%,-50%) scale(.04) rotate(0deg)}18%{opacity:.9}65%{opacity:.18;transform:translate(-50%,-50%) scale(1) rotate(40deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.12) rotate(65deg)}}
+@keyframes ring1{0%,12%{opacity:0;transform:translate(-50%,-50%) scale(.15)}20%{opacity:1}58%{opacity:.22;transform:translate(-50%,-50%) scale(5)}100%{opacity:0;transform:translate(-50%,-50%) scale(6.5)}}
+@keyframes ring2{0%,26%{opacity:0;transform:translate(-50%,-50%) scale(.2)}32%{opacity:.95}72%{opacity:.15;transform:translate(-50%,-50%) scale(4.6)}100%{opacity:0;transform:translate(-50%,-50%) scale(5.8)}}
+@keyframes titleBoom{0%,14%{opacity:0;transform:scale(3.2);filter:blur(18px)}20%{opacity:1;transform:scale(.72);filter:blur(0)}25%{transform:scale(1.18)}30%{transform:scale(.96)}36%{transform:scale(1.03)}43%{transform:scale(1)}78%{opacity:1;transform:scale(1)}88%{transform:scale(1.06)}100%{opacity:0;transform:scale(1.28);filter:blur(6px)}}
+@keyframes subIn{0%,34%{opacity:0;transform:translateY(12px)}45%,85%{opacity:1;transform:translateY(0)}100%{opacity:0}}
+@keyframes scan{0%,18%{opacity:0;top:-25%}28%{opacity:.8}52%{opacity:.35;top:110%}100%{opacity:0;top:120%}}
+@keyframes shake{0%,13%,100%{transform:translate(0,0)}14%{transform:translate(-9px,6px)}15%{transform:translate(8px,-7px)}16%{transform:translate(-7px,-5px)}17%{transform:translate(6px,8px)}18%{transform:translate(-5px,4px)}19%{transform:translate(4px,-4px)}20%{transform:translate(0,0)}42%{transform:translate(0,0)}43%{transform:translate(-5px,2px)}44%{transform:translate(5px,-2px)}45%{transform:translate(0,0)}}
+@keyframes noiseMove{0%{transform:translateY(0)}100%{transform:translateY(3px)}}
 </style>
 </head>
 <body>
@@ -23,9 +57,61 @@
   <div class="actions"><button id="rs" class="subbtn">ハマりリセット</button><button id="ra" class="subbtn">全リセット</button></div>
   <div class="foot">各回転は独立抽選。ハマり回数で次回の当選確率は変わりません。</div>
 </div>
-<div id="cut"><div class="inside"><div class="p">プチュン</div><div class="w">大 当 た り</div></div></div>
+
+<div id="cut" aria-hidden="true">
+  <div class="flash"></div>
+  <div class="burst"></div>
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div class="scan"></div>
+  <div class="noise"></div>
+  <div class="shake">
+    <div class="inside">
+      <div class="p">プチュン</div>
+      <div class="w">大 当 た り</div>
+      <div class="subhit">BONUS</div>
+    </div>
+  </div>
+</div>
+
 <script>
-(()=>{const $=id=>document.getElementById(id),d=$('d'),st=$('streak'),to=$('total'),hi=$('hits'),ac=$('actual'),re=$('result'),sp=$('spin'),cut=$('cut');let s=+localStorage.s||0,t=+localStorage.t||0,h=+localStorage.h||0;d.value=localStorage.d||259.7;const save=()=>{localStorage.s=s;localStorage.t=t;localStorage.h=h;localStorage.d=d.value},render=()=>{st.textContent=s.toLocaleString('ja-JP');to.textContent=t.toLocaleString('ja-JP');hi.textContent=h.toLocaleString('ja-JP');ac.textContent=h?`1/${(t/h).toFixed(1)}`:'—'},rnd=()=>{if(crypto?.getRandomValues){let a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}return Math.random()},sound=()=>{try{let c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain(),n=c.currentTime;o.type='sine';o.frequency.setValueAtTime(130,n);o.frequency.exponentialRampToValueAtTime(42,n+.45);g.gain.setValueAtTime(.7,n);g.gain.exponentialRampToValueAtTime(.001,n+.7);o.connect(g);g.connect(c.destination);o.start();o.stop(n+.72)}catch(e){}};document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{d.value=b.dataset.v;save()});sp.onclick=()=>{let x=+d.value;if(!(x>=1))return;sp.disabled=true;t++;s++;if(rnd()<1/x){h++;re.textContent=`大当たり！ ${s}回転`;save();render();cut.classList.add('show');sound();navigator.vibrate?.([50,40,100,40,180]);setTimeout(()=>{s=0;save();render();sp.disabled=false},900)}else{re.textContent=`ハズレ 1/${x}`;save();render();navigator.vibrate?.(8);sp.disabled=false}};cut.onclick=()=>cut.classList.remove('show');$('rs').onclick=()=>{s=0;re.textContent='ハマりをリセット';save();render()};$('ra').onclick=()=>{if(confirm('全データをリセットしますか？')){s=t=h=0;re.textContent='全データをリセット';save();render()}};d.onchange=save;render()})();
+(()=>{
+  const $=id=>document.getElementById(id),d=$('d'),st=$('streak'),to=$('total'),hi=$('hits'),ac=$('actual'),re=$('result'),sp=$('spin'),cut=$('cut');
+  let s=+localStorage.s||0,t=+localStorage.t||0,h=+localStorage.h||0,busy=false;
+  d.value=localStorage.d||259.7;
+  const save=()=>{localStorage.s=s;localStorage.t=t;localStorage.h=h;localStorage.d=d.value};
+  const render=()=>{st.textContent=s.toLocaleString('ja-JP');to.textContent=t.toLocaleString('ja-JP');hi.textContent=h.toLocaleString('ja-JP');ac.textContent=h?`1/${(t/h).toFixed(1)}`:'—'};
+  const rnd=()=>{if(window.crypto&&crypto.getRandomValues){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}return Math.random()};
+
+  const hitSound=()=>{
+    try{
+      const C=window.AudioContext||window.webkitAudioContext,c=new C(),now=c.currentTime;
+      const master=c.createGain();master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.85,now+.015);master.gain.exponentialRampToValueAtTime(.0001,now+1.95);master.connect(c.destination);
+      const bass=c.createOscillator();bass.type='sawtooth';bass.frequency.setValueAtTime(150,now);bass.frequency.exponentialRampToValueAtTime(34,now+.48);bass.connect(master);bass.start(now);bass.stop(now+.58);
+      [0.32,0.52,0.72].forEach((delay,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.setValueAtTime([440,660,880][i],now+delay);g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.18,now+delay+.01);g.gain.exponentialRampToValueAtTime(.0001,now+delay+.17);o.connect(g);g.connect(c.destination);o.start(now+delay);o.stop(now+delay+.2)});
+      const len=Math.floor(c.sampleRate*.22),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);const src=c.createBufferSource(),ng=c.createGain();src.buffer=buf;ng.gain.setValueAtTime(.45,now);ng.gain.exponentialRampToValueAtTime(.0001,now+.22);src.connect(ng);ng.connect(c.destination);src.start(now)
+    }catch(e){}
+  };
+
+  const showHit=()=>{
+    cut.classList.remove('show');void cut.offsetWidth;cut.classList.add('show');cut.setAttribute('aria-hidden','false');
+    hitSound();
+    if(navigator.vibrate)navigator.vibrate([80,35,120,35,80,35,220,60,120]);
+    setTimeout(()=>{cut.classList.remove('show');cut.setAttribute('aria-hidden','true');s=0;save();render();busy=false;sp.disabled=false},2000);
+  };
+
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{d.value=b.dataset.v;save()});
+  sp.onclick=()=>{
+    if(busy)return;
+    const x=+d.value;if(!(x>=1))return;
+    busy=true;sp.disabled=true;t++;s++;
+    if(rnd()<1/x){h++;re.textContent=`大当たり！ ${s}回転`;save();render();showHit()}
+    else{re.textContent=`ハズレ 1/${x}`;save();render();if(navigator.vibrate)navigator.vibrate(8);busy=false;sp.disabled=false}
+  };
+  $('rs').onclick=()=>{if(busy)return;s=0;re.textContent='ハマりをリセット';save();render()};
+  $('ra').onclick=()=>{if(busy)return;if(confirm('全データをリセットしますか？')){s=t=h=0;re.textContent='全データをリセット';save();render()}};
+  d.onchange=save;render();
+})();
 </script>
 </body>
 </html>
